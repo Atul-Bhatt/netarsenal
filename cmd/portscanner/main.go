@@ -26,6 +26,10 @@ func main() {
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
 
 	for i:=0; i<1000; i++ {
+		// print the current port being scanned
+		fmt.Print("\b\b\b")
+		fmt.Print(i)
+
 		conn, err := net.Dial("tcp", cliArgs.ipAdd + ":" + strconv.Itoa(i))
 
 		if err != nil {
@@ -39,7 +43,7 @@ func main() {
 		var buf bytes.Buffer
 		io.Copy(&buf, conn)
 		if buf.Len() > 0 {
-			fmt.Println(i)
+			fmt.Println()
 		}
 	}
 }

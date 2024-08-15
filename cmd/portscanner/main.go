@@ -5,9 +5,10 @@ import(
 	"fmt"
 	"flag"
 	"time"
+	"strconv"
+	"io"
+	"bytes"
 )
-
-const PORT = "80"
 
 type Flags struct {
 	ipAdd string
@@ -22,24 +23,23 @@ func main() {
 	var cliArgs Flags
 	cliArgs.commandLineFlags()
 
-	conn, err := net.Dial("tcp", cliArgs.ipAdd + ":" +  PORT)
-	if err != nil {
-		fmt.Println("Failed to create a connection")
-		return
-	}
-	defer conn.Close()
-
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
 
-	// set a read deadline
-	conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+	for i:=0; i<1000; i++ {
+		conn, err := net.Dial("tcp", cliArgs.ipAdd + ":" + strconv.Itoa(i))
 
-	b := make([]byte, 1024)
-	readFromConn, readErr := conn.Read(b)
-	if readErr != nil {
-		fmt.Println("Failed to read from connection")
-		return
+		if err != nil {
+			continue
+		}
+		defer conn.Close()
+	
+		// set a read deadline
+		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+
+		var buf bytes.Buffer
+		io.Copy(&buf, conn)
+		if buf.Len() > 0 {
+			fmt.Println(i)
+		}
 	}
-
-	fmt.Println(b, readFromConn)
 }

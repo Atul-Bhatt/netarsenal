@@ -5,7 +5,7 @@ import(
 	"fmt"
 	"flag"
 	"time"
-	"strconv"
+	//"strconv"
 	"io"
 	"bytes"
 )
@@ -19,18 +19,24 @@ func (f *Flags) commandLineFlags() {
 	flag.Parse()
 }
 
+// todo
+// try to send either UDP packet or tcp fin packet for faster scan
+// use goroutines for concurrently scanning ports.
+
 func main() {
 	var cliArgs Flags
 	cliArgs.commandLineFlags()
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
+	udpAddr, _ := net.ResolveUDPAddr("udp", cliArgs.ipAdd)
 
 	for i:=0; i<1000; i++ {
+		//conn, err := net.Dial("tcp", cliArgs.ipAdd + ":" + strconv.Itoa(i))
+		conn, err := net.DialUDP("udp", nil, udpAddr)
+
 		// print the current port being scanned
 		fmt.Print("\b\b\b")
 		fmt.Print(i)
-
-		conn, err := net.Dial("tcp", cliArgs.ipAdd + ":" + strconv.Itoa(i))
 
 		if err != nil {
 			continue
@@ -45,5 +51,6 @@ func main() {
 		if buf.Len() > 0 {
 			fmt.Println()
 		}
+		
 	}
 }

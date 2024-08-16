@@ -1,11 +1,13 @@
 package main
 
 import(
+	"netarsenal/pkg/network"
+
 	"net"
 	"fmt"
 	"flag"
 	"time"
-	//"strconv"
+	"strconv"
 	"io"
 	"bytes"
 )
@@ -28,12 +30,12 @@ func main() {
 	cliArgs.commandLineFlags()
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
-	udpAddr, _ := net.ResolveUDPAddr("udp", cliArgs.ipAdd)
+	//udpAddr, _ := net.ResolveUDPAddr("udp", cliArgs.ipAdd)
 
 	for i:=0; i<1000; i++ {
 		//conn, err := net.Dial("tcp", cliArgs.ipAdd + ":" + strconv.Itoa(i))
-		conn, err := net.DialUDP("udp", nil, udpAddr)
-
+		conn, err := network.scan.tcpFinConnection(cliArgs.ipAdd, strconv.Itoa(i))
+		
 		// print the current port being scanned
 		fmt.Print("\b\b\b")
 		fmt.Print(i)

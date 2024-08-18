@@ -1,8 +1,9 @@
-package network
+package network 
 
 import(
 	"net"
 	"log"
+	"fmt"
 	
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -21,18 +22,18 @@ func getIP() net.IP {
 	return localAddr.IP
 }
 
-func tcpFinConnection(ip_addr, port string) {
+func TcpFinConnection(ip_addr string, port int) {
 	// Open a handle on the network interface to send the packet
-	handle, err := pcap.OpenLive("wlan0", 65535, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive(`\Device\NPF_{6C1EA2F0-95C6-4859-8D8F-2EE3B1D2F3A7}`, 65535, true, pcap.BlockForever)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error in pcap.OpenLive: ", err)
 	}
 	defer handle.Close()
 
 	// create custom packet with FIN bit set
 	ipLayer := &layers.IPv4{
 		SrcIP: getIP(), 
-		DstIP: net.IP(ip_addr), 
+		DstIP: net.ParseIP(ip_addr), 
 		Protocol: layers.IPProtocolTCP,
 	}
 
@@ -54,12 +55,14 @@ func tcpFinConnection(ip_addr, port string) {
 	}
 	err = gopacket.SerializeLayers(buffer, options, ipLayer, tcpLayer)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error in gopacket.SerializeLayers: ", err)
 	}
 
 	// Send the packet
-	err = handle.WriteaPacketData(buffer.Bytes())
-	
+	err = handle.WritePacketData(buffer.Bytes())
+	if len(buffer.Bytes()) > 0 {
+		fmt.Println()
+	}
 }
 
 

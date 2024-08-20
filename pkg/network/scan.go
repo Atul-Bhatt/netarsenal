@@ -24,7 +24,7 @@ func getIP() net.IP {
 
 func TcpFinConnection(ip_addr string, port int) {
 	// Open a handle on the network interface to send the packet
-	handle, err := pcap.OpenLive(`\Device\NPF_{6C1EA2F0-95C6-4859-8D8F-2EE3B1D2F3A7}`, 65535, true, pcap.BlockForever)
+	handle, err := pcap.OpenLive(`\Device\NPF_{43C5B23F-AE4F-46FD-92BB-AD3A15667174}`, 65535, true, pcap.BlockForever)
 	if err != nil {
 		log.Fatal("Error in pcap.OpenLive: ", err)
 	}
@@ -60,9 +60,17 @@ func TcpFinConnection(ip_addr string, port int) {
 
 	// Send the packet
 	err = handle.WritePacketData(buffer.Bytes())
-	if len(buffer.Bytes()) > 0 {
-		fmt.Println()
+	
+	if err != nil {
+		log.Fatal("Error while writing packet: ", err)
 	}
+
+	readBuf, _, readErr :=  handle.ReadPacketData()
+	if err != nil {
+		log.Fatal("Error while reading packet: ", readErr)
+	}
+
+	fmt.Println(readBuf)
 }
 
 

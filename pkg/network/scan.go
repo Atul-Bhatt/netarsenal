@@ -4,6 +4,10 @@ import(
 	"net"
 	"log"
 	"fmt"
+	"strconv"
+	"time"
+	"bytes"
+	"io"
 	
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -65,12 +69,28 @@ func TcpFinConnection(ip_addr string, port int) {
 		log.Fatal("Error while writing packet: ", err)
 	}
 
-	readBuf, _, readErr :=  handle.ReadPacketData()
-	if err != nil {
+	readBuff, _, readErr :=  handle.ReadPacketData()
+	if readErr != nil {
 		log.Fatal("Error while reading packet: ", readErr)
 	}
 
-	fmt.Println(readBuf)
+	fmt.Println(readBuff)
 }
 
+func TcpConnection(ip_addr string, port int) {
+	conn, err := net.Dial("tcp", ip_addr + ":" + strconv.Itoa(port))
 
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+
+	// set connection timeout
+	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+
+	var buf bytes.Buffer
+	io.Copy(&buf, conn)
+	if buf.Len() > 0 {
+		fmt.Println()
+	}
+}

@@ -26,12 +26,12 @@ func main() {
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
 
-	for i:=0; i<30; i++ {
-		network.TcpFinConnection(cliArgs.ipAdd, i)
-		
+	for i:=0; i<=100; i++ {
 		// print the current port being scanned
 		fmt.Print("\b\b\b")
 		fmt.Print(i)
 
+		//network.TcpFinConnection(cliArgs.ipAdd, i)
+		network.TcpConnection(cliArgs.ipAdd, i)
 	}
 }

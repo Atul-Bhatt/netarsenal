@@ -8,6 +8,7 @@ import(
 	"time"
 	"bytes"
 	"io"
+	"sync"
 	
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -77,20 +78,24 @@ func TcpFinConnection(ip_addr string, port int) {
 	fmt.Println(readBuff)
 }
 
-func TcpConnection(ip_addr string, port int) {
+func TcpConnection(ip_addr string, port int, portsOpen []int, wg sync.WaitGroup) {
 	conn, err := net.Dial("tcp", ip_addr + ":" + strconv.Itoa(port))
 
 	if err != nil {
 		return
 	}
-	defer conn.Close()
 
 	// set connection timeout
-	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+
+	defer wg.Done()
+	defer conn.Close()
 
 	var buf bytes.Buffer
 	io.Copy(&buf, conn)
 	if buf.Len() > 0 {
-		fmt.Println()
+		portsOpen = append(portsOpen, port)	
 	}
+	
+	fmt.Println(port)
 }

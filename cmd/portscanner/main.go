@@ -5,6 +5,7 @@ import(
 
 	"fmt"
 	"flag"
+	"sync"
 )
 
 type Flags struct {
@@ -23,15 +24,18 @@ func (f *Flags) commandLineFlags() {
 func main() {
 	var cliArgs Flags
 	cliArgs.commandLineFlags()
+	portsOpen := make([]int, 100)
+
+	var wg sync.WaitGroup
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
 
 	for i:=0; i<=100; i++ {
-		// print the current port being scanned
-		fmt.Print("\b\b\b")
-		fmt.Print(i)
-
+		wg.Add(1)	
 		//network.TcpFinConnection(cliArgs.ipAdd, i)
-		network.TcpConnection(cliArgs.ipAdd, i)
+		go network.TcpConnection(cliArgs.ipAdd, i, portsOpen, wg)
 	}
+	
+	wg.Wait()
+	fmt.Println(portsOpen)
 }

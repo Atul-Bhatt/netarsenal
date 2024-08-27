@@ -6,14 +6,19 @@ import(
 	"fmt"
 	"strconv"
 	"time"
-	"bytes"
-	"io"
+	//"bytes"
+	//"io"
 	"sync"
 	
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 )
+
+type PortsOpen struct {
+	sync.RWMutex
+	Data []int
+}
 
 func getIP() net.IP {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
@@ -78,8 +83,11 @@ func TcpFinConnection(ip_addr string, port int) {
 	fmt.Println(readBuff)
 }
 
-func TcpConnection(ip_addr string, port int, portsOpen []int, wg sync.WaitGroup) {
+func TcpConnection(ip_addr string, port int, portsOpen *PortsOpen, wg *sync.WaitGroup) {
 	conn, err := net.Dial("tcp", ip_addr + ":" + strconv.Itoa(port))
+
+	defer wg.Done()
+	defer conn.Close()
 
 	if err != nil {
 		return
@@ -88,13 +96,18 @@ func TcpConnection(ip_addr string, port int, portsOpen []int, wg sync.WaitGroup)
 	// set connection timeout
 	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
 
-	defer wg.Done()
-	defer conn.Close()
 
-	var buf bytes.Buffer
-	io.Copy(&buf, conn)
-	if buf.Len() > 0 {
-		portsOpen = append(portsOpen, port)	
+	//var buf bytes.Buffer
+	//io.Copy(&buf, conn)
+	buf := make([]byte, 1024)
+	if _, err = conn.Read(buf); err != nil {
+		return
+	}	
+
+	if len(buf) > 0 {
+		portsOpen.Lock()
+		portsOpen.Data = append(portsOpen.Data, port)	
+		portsOpen.Unlock()
 	}
 	
 	fmt.Println(port)

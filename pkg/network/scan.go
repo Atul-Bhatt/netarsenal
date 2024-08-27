@@ -6,8 +6,8 @@ import(
 	"fmt"
 	"strconv"
 	"time"
-	//"bytes"
-	//"io"
+	"bytes"
+	"io"
 	"sync"
 	
 	"github.com/google/gopacket"
@@ -87,7 +87,6 @@ func TcpConnection(ip_addr string, port int, portsOpen *PortsOpen, wg *sync.Wait
 	conn, err := net.Dial("tcp", ip_addr + ":" + strconv.Itoa(port))
 
 	defer wg.Done()
-	defer conn.Close()
 
 	if err != nil {
 		return
@@ -97,14 +96,14 @@ func TcpConnection(ip_addr string, port int, portsOpen *PortsOpen, wg *sync.Wait
 	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
 
 
-	//var buf bytes.Buffer
-	//io.Copy(&buf, conn)
-	buf := make([]byte, 1024)
-	if _, err = conn.Read(buf); err != nil {
-		return
-	}	
+	var buf bytes.Buffer
+	io.Copy(&buf, conn)
+	//buf := make([]byte, 1024)
+	//if _, err = conn.Read(buf); err != nil {
+	//	return
+	//}	
 
-	if len(buf) > 0 {
+	if buf.Len() > 0 {
 		portsOpen.Lock()
 		portsOpen.Data = append(portsOpen.Data, port)	
 		portsOpen.Unlock()

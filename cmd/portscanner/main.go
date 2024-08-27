@@ -21,19 +21,19 @@ func main() {
 	var cliArgs Flags
 	cliArgs.commandLineFlags()
 	portsOpen := &network.PortsOpen {
-		Data: make([]int, 1000), 
+		Data: make([]int, 100), 
 	}
 	var wg sync.WaitGroup
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
 
-	for i:=0; i<=60; i++ {
+	for i:=0; i<=100; i++ {
 		wg.Add(1)
 		go network.TcpConnection(cliArgs.ipAdd, i, portsOpen, &wg)
 	}
 	
 	wg.Wait()
 	portsOpen.RLock()
-	fmt.Println(portsOpen)
+	fmt.Println(portsOpen.Data)
 	portsOpen.RLock()
 }

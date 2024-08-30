@@ -31,19 +31,23 @@ func main() {
 	}
 	var wg sync.WaitGroup
 
-	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
+	// get the type of request from command line
+	var connFunc func(string, int, *network.PortsOpen, *sync.WaitGroup)
+	
+	switch cliArgs.rType {
+	case "tcp":
+		connFunc = network.TcpConnection
+	case "tcpFin":
+		connFunc = network.TcpFinConnection
+	default:
+		fmt.Println(cliArgs.rType, "is not implemented yet.")
+		return
+	}
 
-	for i:=0; i<=100; i++ {
+	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
+	for i:=0; i<=1000; i++ {
 		wg.Add(1)
-		switch cliArgs.rType {
-		case "tcp":
-			go network.TcpConnection(cliArgs.ipAdd, i, portsOpen, &wg)
-		case "tcpFin":
-			go network.TcpFinConnection(cliArgs.ipAdd, i, portsOpen, &wg)
-		default:
-			fmt.Println(cliArgs.rType, "is not implemented yet.")
-			return
-		}
+		go connFunc(cliArgs.ipAdd, i, portsOpen, &wg)
 	}
 	
 	wg.Wait()

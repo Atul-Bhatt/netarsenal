@@ -94,7 +94,7 @@ func TcpConnection(ip_addr string, port int, portsOpen *PortsOpen, wg *sync.Wait
 	}
 
 	// set connection timeout
-	conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+	conn.SetReadDeadline(time.Now().Add(100 * time.Millisecond))
 
 
 	var buf bytes.Buffer

@@ -6,6 +6,7 @@ import(
 	"fmt"
 	"flag"
 	"sync"
+	"time"
 )
 
 type Flags struct {
@@ -20,6 +21,8 @@ func (f *Flags) commandLineFlags() {
 }
 
 func main() {
+	startTime := time.Now()
+
 	var cliArgs Flags
 	cliArgs.commandLineFlags()
 
@@ -47,4 +50,6 @@ func main() {
 	portsOpen.RLock()
 	fmt.Println(portsOpen.Data)
 	portsOpen.RUnlock()
+
+	fmt.Println("time taken", time.Now().Sub(startTime))
 }

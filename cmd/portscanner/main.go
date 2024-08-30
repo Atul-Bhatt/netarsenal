@@ -10,16 +10,19 @@ import(
 
 type Flags struct {
 	ipAdd string
+	rType string
 }
 
 func (f *Flags) commandLineFlags() {
 	flag.StringVar(&f.ipAdd, "ip", "", "Provide IP address")
+	flag.StringVar(&f.rType, "rt", "tcp", "Request Type (tcp, tcpSyn, tcpFin, udp, xmas, null)")
 	flag.Parse()
 }
 
 func main() {
 	var cliArgs Flags
 	cliArgs.commandLineFlags()
+
 	portsOpen := &network.PortsOpen {
 		Data: make([]int, 100), 
 	}
@@ -27,13 +30,24 @@ func main() {
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
 
+//	var connectionFunc func(string, int, []int, sync.WaitGroup)	
+
+
 	for i:=0; i<=100; i++ {
 		wg.Add(1)
-		go network.TcpConnection(cliArgs.ipAdd, i, portsOpen, &wg)
+		switch cliArgs.rType {
+		case "tcp":
+			go network.TcpConnection(cliArgs.ipAdd, i, portsOpen, &wg)
+		case "tcpFin":
+			go network.TcpFinConnection(cliArgs.ipAdd, i, portsOpen, &wg)
+		default:
+			fmt.Println(cliArgs.rType, "is not implemented yet.")
+			return
+		}
 	}
 	
 	wg.Wait()
 	portsOpen.RLock()
 	fmt.Println(portsOpen.Data)
-	portsOpen.RLock()
+	portsOpen.RUnlock()
 }

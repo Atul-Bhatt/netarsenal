@@ -32,7 +32,7 @@ func getIP() net.IP {
 	return localAddr.IP
 }
 
-func TcpFinConnection(ip_addr string, port int) {
+func TcpFinConnection(ip_addr string, port int, _portsOpen *PortsOpen, wg *sync.WaitGroup) {
 	// Open a handle on the network interface to send the packet
 	handle, err := pcap.OpenLive(`\Device\NPF_{43C5B23F-AE4F-46FD-92BB-AD3A15667174}`, 65535, true, pcap.BlockForever)
 	if err != nil {
@@ -103,11 +103,11 @@ func TcpConnection(ip_addr string, port int, portsOpen *PortsOpen, wg *sync.Wait
 	//	return
 	//}	
 
-	if buf.Len() > 0 {
+	//if buf.Len() > 0 {
 		portsOpen.Lock()
 		portsOpen.Data = append(portsOpen.Data, port)	
 		portsOpen.Unlock()
-	}
+	//}
 	
 	fmt.Println(port)
 }

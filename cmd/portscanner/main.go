@@ -24,14 +24,11 @@ func main() {
 	cliArgs.commandLineFlags()
 
 	portsOpen := &network.PortsOpen {
-		Data: make([]int, 100), 
+		Data: make([]int, 0), 
 	}
 	var wg sync.WaitGroup
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
-
-//	var connectionFunc func(string, int, []int, sync.WaitGroup)	
-
 
 	for i:=0; i<=100; i++ {
 		wg.Add(1)

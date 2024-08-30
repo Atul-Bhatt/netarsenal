@@ -38,6 +38,7 @@ func TcpFinConnection(ip_addr string, port int, _portsOpen *PortsOpen, wg *sync.
 	if err != nil {
 		log.Fatal("Error in pcap.OpenLive: ", err)
 	}
+	defer wg.Done()
 	defer handle.Close()
 
 	// create custom packet with FIN bit set
@@ -98,16 +99,10 @@ func TcpConnection(ip_addr string, port int, portsOpen *PortsOpen, wg *sync.Wait
 
 	var buf bytes.Buffer
 	io.Copy(&buf, conn)
-	//buf := make([]byte, 1024)
-	//if _, err = conn.Read(buf); err != nil {
-	//	return
-	//}	
 
 	//if buf.Len() > 0 {
 		portsOpen.Lock()
 		portsOpen.Data = append(portsOpen.Data, port)	
 		portsOpen.Unlock()
 	//}
-	
-	fmt.Println(port)
 }

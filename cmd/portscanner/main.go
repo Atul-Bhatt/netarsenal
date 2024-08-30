@@ -1,10 +1,10 @@
 package main
 
-import(
+import (
 	"netarsenal/pkg/network"
 
-	"fmt"
 	"flag"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -20,20 +20,22 @@ func (f *Flags) commandLineFlags() {
 	flag.Parse()
 }
 
+const MAX_PORTS = 65535
+
 func main() {
 	startTime := time.Now()
 
 	var cliArgs Flags
 	cliArgs.commandLineFlags()
 
-	portsOpen := &network.PortsOpen {
-		Data: make([]int, 0), 
+	portsOpen := &network.PortsOpen{
+		Data: make([]int, 0),
 	}
 	var wg sync.WaitGroup
 
 	// get the type of request from command line
 	var connFunc func(string, int, *network.PortsOpen, *sync.WaitGroup)
-	
+
 	switch cliArgs.rType {
 	case "tcp":
 		connFunc = network.TcpConnection
@@ -45,11 +47,11 @@ func main() {
 	}
 
 	fmt.Println("Scanning ports for " + cliArgs.ipAdd)
-	for i:=0; i<=1000; i++ {
+	for i := 0; i <= MAX_PORTS; i++ {
 		wg.Add(1)
 		go connFunc(cliArgs.ipAdd, i, portsOpen, &wg)
 	}
-	
+
 	wg.Wait()
 	portsOpen.RLock()
 	fmt.Println(portsOpen.Data)
